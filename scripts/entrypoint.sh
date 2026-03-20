@@ -1,0 +1,62 @@
+#!/bin/bash
+set -euo pipefail
+
+FACTORIO_DIR="/opt/factorio"
+DATA_DIR="/factorio"
+SAVES_DIR="${DATA_DIR}/saves"
+CONFIG_DIR="${DATA_DIR}/config"
+SERVER_SETTINGS="${CONFIG_DIR}/server-settings.json"
+MAP_GEN_SETTINGS="${CONFIG_DIR}/map-gen-settings.json"
+MAP_SETTINGS="${CONFIG_DIR}/map-settings.json"
+
+RCON_PORT="${FACTORIO_RCON_PORT:-27015}"
+RCON_PASSWORD="${FACTORIO_RCON_PASSWORD:-changeme}"
+
+# Copy default configs if not present
+for f in server-settings.json map-gen-settings.json map-settings.json; do
+    if [ ! -f "${CONFIG_DIR}/${f}" ]; then
+        if [ -f "${FACTORIO_DIR}/data/${f}" ]; then
+            cp "${FACTORIO_DIR}/data/${f}" "${CONFIG_DIR}/${f}"
+        fi
+    fi
+done
+
+# Create new map if no save exists
+create_new_map() {
+    echo "[entrypoint] Creating new map..."
+    rm -f "${SAVES_DIR}"/*.zip
+    ${FACTORIO_DIR}/bin/x64/factorio \
+        --create "${SAVES_DIR}/world.zip" \
+        --map-gen-settings "${MAP_GEN_SETTINGS}" \
+        --map-settings "${MAP_SETTINGS}"
+    echo "[entrypoint] New map created."
+}
+
+if [ ! -f "${SAVES_DIR}/world.zip" ]; then
+    create_new_map
+fi
+
+# Main server loop — restarts with new map on exit
+while true; do
+    # Start the reset monitor in background
+    /opt/factorio/scripts/reset-monitor.sh &
+    MONITOR_PID=$!
+
+    # Run Factorio server (blocks until server exits)
+    ${FACTORIO_DIR}/bin/x64/factorio \
+        --start-server "${SAVES_DIR}/world.zip" \
+        --server-settings "${SERVER_SETTINGS}" \
+        --rcon-port "${RCON_PORT}" \
+        --rcon-password "${RCON_PASSWORD}" \
+        --server-adminlist "${CONFIG_DIR}/server-adminlist.json" \
+        --console-log "${DATA_DIR}/console.log" \
+    || true
+
+    # Kill reset monitor if still running
+    kill ${MONITOR_PID} 2>/dev/null || true
+
+    echo "[entrypoint] Server exited. Creating new map and restarting..."
+    create_new_map
+
+    sleep 5
+done
