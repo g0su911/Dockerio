@@ -44,13 +44,13 @@ is_scheduled_reset() {
 
 trigger_reset() {
     echo "[reset-monitor] Triggering map reset..."
-    rcon "/say [SERVER] Map will reset in 60 seconds!"
+    rcon "/shout [SERVER] 60초 후 맵이 초기화됩니다!"
     sleep 30
-    rcon "/say [SERVER] Map will reset in 30 seconds!"
+    rcon "/shout [SERVER] 30초 후 맵이 초기화됩니다!"
     sleep 20
-    rcon "/say [SERVER] Map will reset in 10 seconds!"
+    rcon "/shout [SERVER] 10초 후 맵이 초기화됩니다!"
     sleep 10
-    rcon "/say [SERVER] Resetting map now!"
+    rcon "/shout [SERVER] 맵을 초기화합니다!"
     rcon "/quit"
 }
 
