@@ -1,6 +1,6 @@
 services:
   factorio:
-    build: .
+    image: hideroot/dockerio:latest
     ports:
       - "34198:34197/udp"
       - "27016:27015/tcp"
