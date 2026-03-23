@@ -25,10 +25,14 @@ done
 create_new_map() {
     echo "[entrypoint] Creating new map..."
     rm -f "${SAVES_DIR}"/*.zip
-    ${FACTORIO_DIR}/bin/x64/factorio \
-        --create "${SAVES_DIR}/world.zip" \
-        --map-gen-settings "${MAP_GEN_SETTINGS}" \
-        --map-settings "${MAP_SETTINGS}"
+    local cmd=("${FACTORIO_DIR}/bin/x64/factorio" "--create" "${SAVES_DIR}/world.zip")
+    if [ -s "${MAP_GEN_SETTINGS}" ] && [ "$(cat "${MAP_GEN_SETTINGS}")" != "{}" ]; then
+        cmd+=("--map-gen-settings" "${MAP_GEN_SETTINGS}")
+    fi
+    if [ -s "${MAP_SETTINGS}" ] && [ "$(cat "${MAP_SETTINGS}")" != "{}" ]; then
+        cmd+=("--map-settings" "${MAP_SETTINGS}")
+    fi
+    "${cmd[@]}"
     echo "[entrypoint] New map created."
 }
 
