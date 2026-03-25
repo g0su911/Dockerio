@@ -134,17 +134,87 @@ shout '/evolution'          # 바이터 진화도
 shout '/server-save'        # 수동 저장
 ```
 
-## Map Settings
+## Customization
 
-현재 기본 맵 설정:
-- **자원**: 500% (frequency=6, size=6, richness=6)
-- **절벽**: 전체 행성 OFF
-- **바이터**: ON
-- **Space Age**: vulcanus_coal, gleba_stone 등 행성별 자원 포함
+`install.sh` 이후 추가 설정은 config 파일을 직접 수정합니다. 변경 후 서버 재시작 필요.
 
-값 매핑: `5` = 400%, `6` = 500%
+### 서버 정보 변경
+
+`config/server-settings.json`:
+```json
+{
+  "name": "서버 이름",
+  "description": "서버 설명",
+  "tags": ["서버 목록에 표시될 태그"],
+  "game_password": "접속 비밀번호"
+}
+```
+
+**리치 텍스트** (tags에 사용 가능):
+```
+[color=red]빨간 텍스트[/color]
+[font=default-bold]볼드[/font]
+[font=heading-1]큰 제목[/font]
+[item=iron-plate]    ← 아이템 아이콘
+[entity=small-biter] ← 엔티티 아이콘
+```
+사용 가능한 색상: red, green, blue, orange, yellow, cyan, purple, gray
+
+### 리셋 스케줄 변경
+
+`docker-compose.yml`의 환경변수:
+```yaml
+environment:
+  - RESET_SCHEDULE=WED:06:00,FRI:19:00,MON:06:00  # 요일:HH:MM (UTC)
+  - RESET_GAME_HOURS=30                             # 게임 내 시간 제한
+```
+
+### 맵 설정 변경
+
+`config/map-gen-settings.json`에서 자원량, 절벽, 바이터 등을 수정:
+
+```json
+{
+  "autoplace_controls": {
+    "iron-ore": {"frequency": 6, "size": 6, "richness": 6}
+  }
+}
+```
+
+| 값 | 게임 내 표시 |
+|----|-------------|
+| 1  | 100% (기본) |
+| 2  | 150% |
+| 3  | 200% |
+| 5  | 400% |
+| 6  | 500% (최대) |
+
+**절벽 끄기:**
+```json
+{
+  "nauvis_cliff": {"frequency": 0, "size": 0, "richness": 0},
+  "gleba_cliff": {"frequency": 0, "size": 0, "richness": 0},
+  "fulgora_cliff": {"frequency": 0, "size": 0, "richness": 0}
+}
+```
+
+**행성별 자원 키:**
+| 행성 | 키 |
+|------|---|
+| Nauvis | `coal`, `stone`, `iron-ore`, `copper-ore`, `uranium-ore`, `crude-oil` |
+| Vulcanus | `vulcanus_coal`, `calcite`, `sulfuric_acid_geyser`, `tungsten_ore` |
+| Gleba | `gleba_stone` |
+| Fulgora | `scrap`, `lithium_brine` |
+| Aquilo | `aquilo_crude_oil`, `fluorine_vent` |
 
 자세한 설정은 `docs/map-gen-reference.md` 참고.
+
+### 관리자 추가
+
+`config/server-adminlist.json`:
+```json
+["admin_username1", "admin_username2"]
+```
 
 ## Auto Version Update
 
