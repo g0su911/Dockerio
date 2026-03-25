@@ -7,6 +7,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
+        jq \
         xz-utils \
     && rm -rf /var/lib/apt/lists/*
 

@@ -1,1 +1,44 @@
-{}
+{
+  "width": 0,
+  "height": 0,
+  "starting_area": 1,
+  "peaceful_mode": false,
+  "autoplace_controls":
+  {
+    "coal": {"frequency": 5, "size": 5, "richness": 5},
+    "stone": {"frequency": 5, "size": 5, "richness": 5},
+    "copper-ore": {"frequency": 5, "size": 5, "richness": 5},
+    "iron-ore": {"frequency": 5, "size": 5, "richness": 5},
+    "uranium-ore": {"frequency": 5, "size": 5, "richness": 5},
+    "crude-oil": {"frequency": 5, "size": 5, "richness": 5},
+    "water": {"frequency": 1, "size": 1},
+    "trees": {"frequency": 1, "size": 1},
+    "enemy-base": {"frequency": 1, "size": 1},
+    "calcite": {"frequency": 5, "size": 5, "richness": 5},
+    "lithium_brine": {"frequency": 5, "size": 5, "richness": 5},
+    "scrap": {"frequency": 5, "size": 5, "richness": 5},
+    "sulfuric_acid_geyser": {"frequency": 5, "size": 5, "richness": 5},
+    "fluorine_vent": {"frequency": 5, "size": 5, "richness": 5},
+    "tungsten_ore": {"frequency": 5, "size": 5, "richness": 5},
+    "aquilo_crude_oil": {"frequency": 5, "size": 5, "richness": 5}
+  },
+  "cliff_settings":
+  {
+    "name": "cliff",
+    "cliff_elevation_0": 0,
+    "cliff_elevation_interval": 0,
+    "richness": 0
+  },
+  "property_expression_names":
+  {
+    "control:moisture:frequency": "1",
+    "control:moisture:bias": "0",
+    "control:aux:frequency": "1",
+    "control:aux:bias": "0"
+  },
+  "starting_points":
+  [
+    { "x": 0, "y": 0}
+  ],
+  "seed": null
+}

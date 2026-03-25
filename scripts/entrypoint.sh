@@ -46,6 +46,10 @@ while true; do
     /opt/factorio/scripts/reset-monitor.sh &
     MONITOR_PID=$!
 
+    # Start the player monitor in background
+    /opt/factorio/scripts/player-monitor.sh &
+    PLAYER_MONITOR_PID=$!
+
     # Run Factorio server (blocks until server exits)
     ${FACTORIO_DIR}/bin/x64/factorio \
         --start-server "${SAVES_DIR}/world.zip" \
@@ -56,8 +60,9 @@ while true; do
         --console-log "${DATA_DIR}/console.log" \
     || true
 
-    # Kill reset monitor if still running
+    # Kill monitors if still running
     kill ${MONITOR_PID} 2>/dev/null || true
+    kill ${PLAYER_MONITOR_PID} 2>/dev/null || true
 
     echo "[entrypoint] Server exited. Creating new map and restarting..."
     create_new_map
