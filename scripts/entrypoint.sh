@@ -13,13 +13,60 @@ RCON_PORT="${FACTORIO_RCON_PORT:-27015}"
 RCON_PASSWORD="${FACTORIO_RCON_PASSWORD:-changeme}"
 
 # Copy default configs if not present
-for f in server-settings.json map-gen-settings.json map-settings.json; do
+for f in map-gen-settings.json map-settings.json; do
     if [ ! -f "${CONFIG_DIR}/${f}" ]; then
         if [ -f "${FACTORIO_DIR}/data/${f}" ]; then
             cp "${FACTORIO_DIR}/data/${f}" "${CONFIG_DIR}/${f}"
         fi
     fi
 done
+
+# Generate server-settings.json from env vars if not present
+if [ ! -f "${SERVER_SETTINGS}" ]; then
+    echo "[entrypoint] Generating server-settings.json from environment variables..."
+    cat > "${SERVER_SETTINGS}" <<SETTINGS
+{
+  "name": "${FACTORIO_SERVER_NAME:-Dockerio Server}",
+  "description": "${FACTORIO_SERVER_DESCRIPTION:-Powered by Dockerio}",
+  "tags": ["${FACTORIO_SERVER_TAGS:-Dockerio}"],
+  "max_players": 0,
+  "visibility": {"public": true, "lan": true},
+  "username": "${FACTORIO_USERNAME:-}",
+  "token": "${FACTORIO_TOKEN:-}",
+  "game_password": "${FACTORIO_GAME_PASSWORD:-}",
+  "require_user_verification": true,
+  "max_upload_in_kilobytes_per_second": 0,
+  "max_upload_slots": 5,
+  "minimum_latency_in_ticks": 0,
+  "max_heartbeats_per_second": 60,
+  "ignore_player_limit_for_returning_players": false,
+  "allow_commands": "admins-only",
+  "autosave_interval": 10,
+  "autosave_slots": 3,
+  "afk_autokick_interval": ${FACTORIO_AFK_KICK:-30},
+  "auto_pause": true,
+  "auto_pause_when_players_connect": false,
+  "only_admins_can_pause_the_game": true,
+  "autosave_only_on_server": true,
+  "non_blocking_saving": true,
+  "minimum_segment_size": 25,
+  "minimum_segment_size_peer_count": 20,
+  "maximum_segment_size": 100,
+  "maximum_segment_size_peer_count": 10
+}
+SETTINGS
+    echo "[entrypoint] server-settings.json generated."
+fi
+
+# Generate server-adminlist.json from env vars if not present
+if [ ! -f "${CONFIG_DIR}/server-adminlist.json" ]; then
+    if [ -n "${FACTORIO_ADMINS:-}" ]; then
+        echo "[${FACTORIO_ADMINS}]" | sed 's/,/","/g; s/\[/["/; s/\]/"]/' > "${CONFIG_DIR}/server-adminlist.json"
+    else
+        echo "[]" > "${CONFIG_DIR}/server-adminlist.json"
+    fi
+    echo "[entrypoint] server-adminlist.json generated."
+fi
 
 # Create new map if no save exists
 create_new_map() {

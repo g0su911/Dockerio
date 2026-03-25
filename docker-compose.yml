@@ -9,7 +9,6 @@ services:
     env_file:
       - .env
     environment:
-      - FACTORIO_SERVER_NAME=Factorio Speedrun Server
       - RESET_SCHEDULE=WED:06:00,FRI:19:00,MON:06:00
       - RESET_GAME_HOURS=30
       - SERVER_MODE=achievement
