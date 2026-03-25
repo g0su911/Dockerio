@@ -3,6 +3,14 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/g0su911/Dockerio/actions"><img src="https://github.com/g0su911/Dockerio/actions/workflows/build-and-push.yml/badge.svg" alt="Build"></a>
+  <a href="https://hub.docker.com/r/hideroot/dockerio"><img src="https://img.shields.io/docker/pulls/hideroot/dockerio?logo=docker&label=pulls" alt="Docker Pulls"></a>
+  <a href="https://hub.docker.com/r/hideroot/dockerio"><img src="https://img.shields.io/docker/image-size/hideroot/dockerio/latest?logo=docker&label=image%20size" alt="Docker Image Size"></a>
+  <a href="https://github.com/g0su911/Dockerio/blob/main/LICENSE"><img src="https://img.shields.io/github/license/g0su911/Dockerio" alt="License"></a>
+  <a href="https://github.com/g0su911/Dockerio/stargazers"><img src="https://img.shields.io/github/stars/g0su911/Dockerio?style=social" alt="Stars"></a>
+</p>
+
+<p align="center">
   <a href="README.md">English</a>
 </p>
 
