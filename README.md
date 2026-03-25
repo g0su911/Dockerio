@@ -34,7 +34,7 @@ Factorio 헤드리스 서버를 Docker로 간편하게 운영. 자동 맵 리셋
 ### 1. Clone
 
 ```bash
-git clone https://github.com/Dongsoon-Shin/Dockerio.git
+git clone https://github.com/g0su911/Dockerio.git
 cd Dockerio
 ```
 
