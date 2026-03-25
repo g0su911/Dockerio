@@ -20,7 +20,20 @@
     "sulfuric_acid_geyser": {"frequency": 5, "size": 5, "richness": 5},
     "fluorine_vent": {"frequency": 5, "size": 5, "richness": 5},
     "tungsten_ore": {"frequency": 5, "size": 5, "richness": 5},
-    "aquilo_crude_oil": {"frequency": 5, "size": 5, "richness": 5}
+    "aquilo_crude_oil": {"frequency": 5, "size": 5, "richness": 5},
+
+    "vulcanus_coal": {"frequency": 5, "size": 5, "richness": 5},
+    "vulcanus_volcanism": {"frequency": 1, "size": 1, "richness": 1},
+    "gleba_stone": {"frequency": 5, "size": 5, "richness": 5},
+    "gleba_plants": {"frequency": 1, "size": 1, "richness": 1},
+    "gleba_water": {"frequency": 1, "size": 1, "richness": 1},
+    "gleba_enemy_base": {"frequency": 1, "size": 1, "richness": 1},
+    "fulgora_islands": {"frequency": 1, "size": 1, "richness": 1},
+    "rocks": {"frequency": 1, "size": 1, "richness": 1},
+
+    "nauvis_cliff": {"frequency": 0, "size": 0, "richness": 0},
+    "gleba_cliff": {"frequency": 0, "size": 0, "richness": 0},
+    "fulgora_cliff": {"frequency": 0, "size": 0, "richness": 0}
   },
   "cliff_settings":
   {
