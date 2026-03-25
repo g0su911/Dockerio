@@ -67,5 +67,10 @@ while true; do
     echo "[entrypoint] Server exited. Creating new map and restarting..."
     create_new_map
 
+    # Update last reset date in server tags
+    RESET_DATE=$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M')
+    sed -i "s/마지막 초기화: [^[]*/마지막 초기화: ${RESET_DATE}/" "${SERVER_SETTINGS}"
+    echo "[entrypoint] Updated last reset date: ${RESET_DATE}"
+
     sleep 5
 done
