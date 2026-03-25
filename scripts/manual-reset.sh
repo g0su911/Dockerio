@@ -18,5 +18,7 @@ for i in 10 9 8 7 6 5 4 3 2 1; do
     rcon "/shout [SERVER] ${i}초"
     sleep 1
 done
+rcon "/server-save"
+sleep 3
 rcon "/shout [SERVER] 맵을 초기화합니다"
 rcon "/quit"
