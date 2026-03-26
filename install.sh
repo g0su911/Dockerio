@@ -34,7 +34,17 @@ echo "[3/4] Admin Setup"
 read -rp "  Admin username (blank=skip): " ADMIN_NAME
 echo ""
 
-echo "[4/4] Generating config..."
+echo "[4/4] Blueprint Settings"
+read -rp "  Disable blueprint library? (y/N): " DISABLE_BP
+DISABLE_BP=$(echo "${DISABLE_BP}" | tr '[:upper:]' '[:lower:]')
+if [ "${DISABLE_BP}" = "y" ] || [ "${DISABLE_BP}" = "yes" ]; then
+    FACTORIO_DISABLE_BLUEPRINTS="true"
+else
+    FACTORIO_DISABLE_BLUEPRINTS="false"
+fi
+echo ""
+
+echo "[5/5] Generating config..."
 RCON_PASS=$(openssl rand -hex 16)
 
 cat > "${ENV_FILE}" <<EOF
@@ -50,6 +60,7 @@ FACTORIO_SERVER_NAME=${SERVER_NAME}
 FACTORIO_GAME_PASSWORD=${GAME_PASSWORD}
 FACTORIO_AFK_KICK=30
 FACTORIO_ADMINS=${ADMIN_NAME}
+FACTORIO_DISABLE_BLUEPRINTS=${FACTORIO_DISABLE_BLUEPRINTS}
 EOF
 
 echo "  [OK] .env created"

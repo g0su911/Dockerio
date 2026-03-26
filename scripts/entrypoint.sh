@@ -96,6 +96,21 @@ fi
 
 # Main server loop — restarts with new map on exit
 while true; do
+    # Apply blueprint restrictions via RCON after server is ready
+    if [ "${FACTORIO_DISABLE_BLUEPRINTS:-false}" = "true" ]; then
+        (
+            sleep 35
+            RCON_CMD="mcrcon -H 127.0.0.1 -P ${RCON_PORT} -p ${RCON_PASSWORD}"
+            echo "[entrypoint] Applying blueprint restrictions..."
+            ${RCON_CMD} "/permissions edit-group Default open_blueprint_library_gui false" 2>/dev/null || true
+            ${RCON_CMD} "/permissions edit-group Default import_blueprint_string false" 2>/dev/null || true
+            ${RCON_CMD} "/permissions edit-group Default import_blueprint false" 2>/dev/null || true
+            ${RCON_CMD} "/permissions edit-group Default export_blueprint false" 2>/dev/null || true
+            echo "[entrypoint] Blueprint restrictions applied."
+        ) &
+        BLUEPRINT_PID=$!
+    fi
+
     # Start the reset monitor in background
     /opt/factorio/scripts/reset-monitor.sh &
     MONITOR_PID=$!
@@ -115,6 +130,7 @@ while true; do
     || true
 
     # Kill monitors if still running
+    [ -n "${BLUEPRINT_PID:-}" ] && kill ${BLUEPRINT_PID} 2>/dev/null || true
     kill ${MONITOR_PID} 2>/dev/null || true
     kill ${PLAYER_MONITOR_PID} 2>/dev/null || true
 
