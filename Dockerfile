@@ -31,7 +31,9 @@ RUN useradd -r -m -d /factorio factorio \
 COPY scripts/ /opt/factorio/scripts/
 RUN chmod +x /opt/factorio/scripts/*.sh
 
-COPY mods/ /opt/factorio/mods/
+# Store mods separately (not in factorio's auto-scan path)
+# entrypoint.sh copies them to /factorio/mods/ only when SERVER_MODE=modded
+COPY mods/ /opt/dockerio-mods/
 
 EXPOSE 34197/udp 27015/tcp
 

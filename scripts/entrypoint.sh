@@ -72,8 +72,8 @@ fi
 if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
     MODS_DIR="${DATA_DIR}/mods"
     mkdir -p "${MODS_DIR}"
-    # Copy mods
-    for mod_dir in /opt/factorio/mods/*/; do
+    # Copy mods from staging directory
+    for mod_dir in /opt/dockerio-mods/*/; do
         [ -d "${mod_dir}" ] && cp -r "${mod_dir}" "${MODS_DIR}/"
     done
 
