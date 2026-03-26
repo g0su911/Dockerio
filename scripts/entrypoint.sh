@@ -81,6 +81,13 @@ create_new_map() {
     fi
     "${cmd[@]}"
     echo "[entrypoint] New map created."
+
+    # Update last reset date in server tags
+    RESET_DATE=$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M')
+    if [ -f "${SERVER_SETTINGS}" ]; then
+        sed -i "s/마지막 초기화: [^[]*/마지막 초기화: ${RESET_DATE}/" "${SERVER_SETTINGS}"
+        echo "[entrypoint] Updated last reset date: ${RESET_DATE}"
+    fi
 }
 
 if [ ! -f "${SAVES_DIR}/world.zip" ]; then
@@ -113,11 +120,6 @@ while true; do
 
     echo "[entrypoint] Server exited. Creating new map and restarting..."
     create_new_map
-
-    # Update last reset date in server tags
-    RESET_DATE=$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M')
-    sed -i "s/마지막 초기화: [^[]*/마지막 초기화: ${RESET_DATE}/" "${SERVER_SETTINGS}"
-    echo "[entrypoint] Updated last reset date: ${RESET_DATE}"
 
     sleep 5
 done
