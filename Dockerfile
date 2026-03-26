@@ -10,6 +10,7 @@ RUN apt-get update && \
         jq \
         xz-utils \
         ffmpeg \
+        zip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install mcrcon for RCON communication

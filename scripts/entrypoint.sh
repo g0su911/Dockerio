@@ -72,9 +72,13 @@ fi
 if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
     MODS_DIR="${DATA_DIR}/mods"
     mkdir -p "${MODS_DIR}"
-    # Copy mods from staging directory
+    # Package mods as zip files (required for multiplayer mod sync)
     for mod_dir in /opt/dockerio-mods/*/; do
-        [ -d "${mod_dir}" ] && cp -r "${mod_dir}" "${MODS_DIR}/"
+        [ -d "${mod_dir}" ] || continue
+        mod_name=$(basename "${mod_dir}")
+        mod_version=$(jq -r '.version' "${mod_dir}/info.json")
+        zip_name="${mod_name}_${mod_version}.zip"
+        (cd /opt/dockerio-mods && zip -qr "${MODS_DIR}/${zip_name}" "${mod_name}/")
     done
 
     # Generate mod-list.json
