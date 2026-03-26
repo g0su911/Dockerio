@@ -70,7 +70,7 @@ fi
 
 # Install mods for modded mode
 if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
-    MODS_DIR="${DATA_DIR}/mods"
+    MODS_DIR="${FACTORIO_DIR}/mods"
     mkdir -p "${MODS_DIR}"
     # Package mods as zip files (required for multiplayer mod sync)
     # Factorio requires zip internal path: modname_version/info.json
@@ -178,6 +178,9 @@ while true; do
     if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
         /opt/factorio/scripts/timelapse-render.sh || true
     fi
+
+    # Reset player data on map reset
+    echo '{}' > "${DATA_DIR}/players.json"
 
     echo "[entrypoint] Creating new map and restarting..."
     create_new_map
