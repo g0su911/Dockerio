@@ -74,6 +74,18 @@ if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
     mkdir -p "${MODS_DIR}"
     if [ -d "/opt/factorio/mods/timelapse-mod" ]; then
         cp -r /opt/factorio/mods/timelapse-mod "${MODS_DIR}/"
+        # Generate mod-list.json to enable the mod
+        cat > "${MODS_DIR}/mod-list.json" <<MODLIST
+{
+  "mods": [
+    { "name": "base", "enabled": true },
+    { "name": "elevated-rails", "enabled": true },
+    { "name": "quality", "enabled": true },
+    { "name": "space-age", "enabled": true },
+    { "name": "timelapse-mod", "enabled": true }
+  ]
+}
+MODLIST
         echo "[entrypoint] Timelapse mod installed."
     fi
 fi
