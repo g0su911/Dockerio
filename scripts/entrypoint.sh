@@ -68,6 +68,16 @@ if [ ! -f "${CONFIG_DIR}/server-adminlist.json" ]; then
     echo "[entrypoint] server-adminlist.json generated."
 fi
 
+# Install mods for modded mode
+if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
+    MODS_DIR="${DATA_DIR}/mods"
+    mkdir -p "${MODS_DIR}"
+    if [ -d "/opt/factorio/mods/timelapse-mod" ]; then
+        cp -r /opt/factorio/mods/timelapse-mod "${MODS_DIR}/"
+        echo "[entrypoint] Timelapse mod installed."
+    fi
+fi
+
 # Create new map if no save exists
 create_new_map() {
     echo "[entrypoint] Creating new map..."
@@ -138,7 +148,14 @@ while true; do
     [ -n "${MONITOR_PID:-}" ] && kill ${MONITOR_PID} 2>/dev/null || true
     [ -n "${PLAYER_MONITOR_PID:-}" ] && kill ${PLAYER_MONITOR_PID} 2>/dev/null || true
 
-    echo "[entrypoint] Server exited. Creating new map and restarting..."
+    echo "[entrypoint] Server exited."
+
+    # Render timelapse before creating new map
+    if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
+        /opt/factorio/scripts/timelapse-render.sh || true
+    fi
+
+    echo "[entrypoint] Creating new map and restarting..."
     create_new_map
 
     sleep 5

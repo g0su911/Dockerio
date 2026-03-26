@@ -9,7 +9,12 @@ RUN apt-get update && \
         curl \
         jq \
         xz-utils \
+        ffmpeg \
     && rm -rf /var/lib/apt/lists/*
+
+# Install gsutil for GCS uploads
+RUN curl -fsSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/opt \
+    && ln -s /opt/google-cloud-sdk/bin/gsutil /usr/local/bin/gsutil
 
 # Install mcrcon for RCON communication
 RUN curl -fsSL https://github.com/Tiiffi/mcrcon/releases/download/v0.7.2/mcrcon-0.7.2-linux-x86-64.tar.gz \
@@ -29,6 +34,8 @@ RUN useradd -r -m -d /factorio factorio \
 
 COPY scripts/ /opt/factorio/scripts/
 RUN chmod +x /opt/factorio/scripts/*.sh
+
+COPY mods/ /opt/factorio/mods/
 
 EXPOSE 34197/udp 27015/tcp
 
