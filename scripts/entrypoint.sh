@@ -112,12 +112,16 @@ while true; do
     fi
 
     # Start the reset monitor in background
-    /opt/factorio/scripts/reset-monitor.sh &
-    MONITOR_PID=$!
+    if [ "${FACTORIO_AUTO_RESET:-true}" = "true" ]; then
+        /opt/factorio/scripts/reset-monitor.sh &
+        MONITOR_PID=$!
+    fi
 
     # Start the player monitor in background
-    /opt/factorio/scripts/player-monitor.sh &
-    PLAYER_MONITOR_PID=$!
+    if [ "${FACTORIO_PLAYER_MONITOR:-true}" = "true" ]; then
+        /opt/factorio/scripts/player-monitor.sh &
+        PLAYER_MONITOR_PID=$!
+    fi
 
     # Run Factorio server (blocks until server exits)
     ${FACTORIO_DIR}/bin/x64/factorio \
@@ -131,8 +135,8 @@ while true; do
 
     # Kill monitors if still running
     [ -n "${BLUEPRINT_PID:-}" ] && kill ${BLUEPRINT_PID} 2>/dev/null || true
-    kill ${MONITOR_PID} 2>/dev/null || true
-    kill ${PLAYER_MONITOR_PID} 2>/dev/null || true
+    [ -n "${MONITOR_PID:-}" ] && kill ${MONITOR_PID} 2>/dev/null || true
+    [ -n "${PLAYER_MONITOR_PID:-}" ] && kill ${PLAYER_MONITOR_PID} 2>/dev/null || true
 
     echo "[entrypoint] Server exited. Creating new map and restarting..."
     create_new_map
