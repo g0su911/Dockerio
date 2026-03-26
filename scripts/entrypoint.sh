@@ -72,22 +72,25 @@ fi
 if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
     MODS_DIR="${DATA_DIR}/mods"
     mkdir -p "${MODS_DIR}"
-    if [ -d "/opt/factorio/mods/timelapse-mod" ]; then
-        cp -r /opt/factorio/mods/timelapse-mod "${MODS_DIR}/"
-        # Generate mod-list.json to enable the mod
-        cat > "${MODS_DIR}/mod-list.json" <<MODLIST
+    # Copy mods
+    for mod_dir in /opt/factorio/mods/*/; do
+        [ -d "${mod_dir}" ] && cp -r "${mod_dir}" "${MODS_DIR}/"
+    done
+
+    # Generate mod-list.json
+    cat > "${MODS_DIR}/mod-list.json" <<MODLIST
 {
   "mods": [
     { "name": "base", "enabled": true },
     { "name": "elevated-rails", "enabled": true },
     { "name": "quality", "enabled": true },
     { "name": "space-age", "enabled": true },
-    { "name": "timelapse-mod", "enabled": true }
+    { "name": "timelapse-mod", "enabled": true },
+    { "name": "speedrun-timer-mod", "enabled": true }
   ]
 }
 MODLIST
-        echo "[entrypoint] Timelapse mod installed."
-    fi
+    echo "[entrypoint] Mods installed: timelapse-mod, speedrun-timer-mod"
 fi
 
 # Create new map if no save exists
