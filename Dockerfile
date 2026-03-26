@@ -10,14 +10,7 @@ RUN apt-get update && \
         jq \
         xz-utils \
         ffmpeg \
-        python3 \
-        python3-crcmod \
     && rm -rf /var/lib/apt/lists/*
-
-# Install gsutil for GCS uploads
-RUN curl -fsSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=/opt \
-    && ln -s /opt/google-cloud-sdk/bin/gsutil /usr/local/bin/gsutil \
-    && ln -s /opt/google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud
 
 # Install mcrcon for RCON communication
 RUN curl -fsSL https://github.com/Tiiffi/mcrcon/releases/download/v0.7.2/mcrcon-0.7.2-linux-x86-64.tar.gz \

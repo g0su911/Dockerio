@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Render timelapse videos from screenshots and upload to GCS
-# Called by entrypoint.sh before map reset
+# Uses GCP metadata server for auth (no SDK needed)
 
 SCRIPT_OUTPUT="/factorio/script-output/timelapse"
 RENDER_DIR="/factorio/timelapse-render"
@@ -27,6 +27,31 @@ if [ "${has_screenshots}" = false ]; then
     echo "[timelapse] No screenshots found. Skipping."
     exit 0
 fi
+
+# Get GCP access token from metadata server
+gcs_upload() {
+    local file="$1"
+    local dest="$2"
+    local token
+
+    token=$(curl -sf -H "Metadata-Flavor: Google" \
+        "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
+        | jq -r '.access_token')
+
+    if [ -z "${token}" ] || [ "${token}" = "null" ]; then
+        echo "[timelapse] Failed to get GCP token. Skipping upload."
+        return 1
+    fi
+
+    curl -sf -X POST \
+        -H "Authorization: Bearer ${token}" \
+        -H "Content-Type: video/mp4" \
+        --data-binary "@${file}" \
+        "https://storage.googleapis.com/upload/storage/v1/b/${GCS_BUCKET}/o?uploadType=media&name=${dest}" \
+        > /dev/null
+
+    return $?
+}
 
 mkdir -p "${RENDER_DIR}"
 
@@ -61,11 +86,11 @@ for surface_dir in "${SCRIPT_OUTPUT}"/*/; do
     echo "[timelapse] ${surface_name}: rendered -> ${output_file}"
 
     # Upload to GCS
-    if command -v gsutil >/dev/null 2>&1; then
-        gsutil -q cp "${output_file}" "gs://${GCS_BUCKET}/${TIMESTAMP}/${surface_name}.mp4"
-        echo "[timelapse] ${surface_name}: uploaded to gs://${GCS_BUCKET}/${TIMESTAMP}/${surface_name}.mp4"
+    dest="${TIMESTAMP}/${surface_name}.mp4"
+    if gcs_upload "${output_file}" "${dest}"; then
+        echo "[timelapse] ${surface_name}: uploaded to gs://${GCS_BUCKET}/${dest}"
     else
-        echo "[timelapse] gsutil not found, skipping upload."
+        echo "[timelapse] ${surface_name}: upload failed, keeping local file."
     fi
 done
 
