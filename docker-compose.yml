@@ -1,9 +1,7 @@
 services:
   factorio:
     image: hideroot/dockerio:latest
-    ports:
-      - "34197:34197/udp"
-      - "27015:27015/tcp"
+    network_mode: host
     volumes:
       - ./config:/factorio/config
     env_file:
@@ -11,5 +9,4 @@ services:
     environment:
       - RESET_SCHEDULE=WED:06:00,FRI:19:00,MON:06:00
       - RESET_GAME_HOURS=30
-      - SERVER_MODE=achievement
     restart: unless-stopped
