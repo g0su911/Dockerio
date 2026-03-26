@@ -76,14 +76,14 @@ if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
     # Factorio requires zip internal path: modname_version/info.json
     for mod_dir in /opt/dockerio-mods/*/; do
         [ -d "${mod_dir}" ] || continue
-        mod_name=$(basename "${mod_dir}")
+        mod_name=$(jq -r '.name' "${mod_dir}/info.json")
         mod_version=$(jq -r '.version' "${mod_dir}/info.json")
         zip_dir="${mod_name}_${mod_version}"
         zip_name="${zip_dir}.zip"
-        # Create temp symlink with versioned name
-        ln -sf "${mod_dir}" "/tmp/${zip_dir}"
+        # Copy to temp with correct name, then zip
+        cp -r "${mod_dir}" "/tmp/${zip_dir}"
         (cd /tmp && zip -qr "${MODS_DIR}/${zip_name}" "${zip_dir}/")
-        rm -f "/tmp/${zip_dir}"
+        rm -rf "/tmp/${zip_dir}"
     done
 
     # Generate mod-list.json
