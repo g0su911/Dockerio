@@ -94,8 +94,8 @@ if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
     { "name": "elevated-rails", "enabled": true },
     { "name": "quality", "enabled": true },
     { "name": "space-age", "enabled": true },
-    { "name": "timelapse-mod", "enabled": true },
-    { "name": "speedrun-timer-mod", "enabled": true }
+    { "name": "dockerio-timelapse", "enabled": true },
+    { "name": "dockerio-speedrun-timer", "enabled": true }
   ]
 }
 MODLIST

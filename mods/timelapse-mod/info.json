@@ -1,8 +1,10 @@
 {
-  "name": "timelapse-mod",
+  "name": "dockerio-timelapse",
   "version": "0.1.0",
   "title": "Dockerio Timelapse",
-  "author": "Dockerio",
+  "author": "g0su911",
+  "contact": "https://github.com/g0su911/Dockerio",
+  "homepage": "https://github.com/g0su911/Dockerio",
   "factorio_version": "2.0",
-  "description": "Automatic timelapse screenshots for all surfaces every hour"
+  "description": "Automatic timelapse screenshots for all surfaces. Planets captured hourly, space platforms every 30 minutes. Nauvis uses logarithmic zoom-out to follow factory growth."
 }

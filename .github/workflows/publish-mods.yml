@@ -1,0 +1,86 @@
+name: Publish Mods to Factorio Portal
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mods/**'
+  workflow_dispatch:
+
+jobs:
+  publish-mods:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mod:
+          - name: dockerio-timelapse
+            path: mods/timelapse-mod
+          - name: dockerio-speedrun-timer
+            path: mods/speedrun-timer-mod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get mod version
+        id: mod
+        run: |
+          VERSION=$(jq -r '.version' ${{ matrix.mod.path }}/info.json)
+          NAME=$(jq -r '.name' ${{ matrix.mod.path }}/info.json)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "name=${NAME}" >> $GITHUB_OUTPUT
+
+      - name: Package mod as zip
+        run: |
+          MOD_DIR="${{ steps.mod.outputs.name }}_${{ steps.mod.outputs.version }}"
+          cp -r ${{ matrix.mod.path }} "/tmp/${MOD_DIR}"
+          cd /tmp && zip -qr "${MOD_DIR}.zip" "${MOD_DIR}/"
+          echo "ZIP_PATH=/tmp/${MOD_DIR}.zip" >> $GITHUB_ENV
+
+      - name: Check if mod exists on portal
+        id: check
+        run: |
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
+            "https://mods.factorio.com/api/mods/${{ steps.mod.outputs.name }}" || true)
+          if [ "$STATUS" = "200" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish new mod
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          # Step 1: Init publish
+          RESPONSE=$(curl -sf -X POST \
+            "https://mods.factorio.com/api/v2/mods/init_publish" \
+            -H "Authorization: Bearer ${{ secrets.FACTORIO_MOD_API_KEY }}" \
+            -d "mod=${{ steps.mod.outputs.name }}")
+          UPLOAD_URL=$(echo "$RESPONSE" | jq -r '.upload_url')
+
+          if [ -z "$UPLOAD_URL" ] || [ "$UPLOAD_URL" = "null" ]; then
+            echo "Failed to init publish: $RESPONSE"
+            exit 1
+          fi
+
+          # Step 2: Upload with metadata
+          curl -sf -X POST "$UPLOAD_URL" \
+            -F "file=@${ZIP_PATH}"
+
+      - name: Upload new release
+        if: steps.check.outputs.exists == 'true'
+        run: |
+          # Step 1: Init upload
+          RESPONSE=$(curl -sf -X POST \
+            "https://mods.factorio.com/api/v2/mods/releases/init_upload" \
+            -H "Authorization: Bearer ${{ secrets.FACTORIO_MOD_API_KEY }}" \
+            -d "mod=${{ steps.mod.outputs.name }}")
+          UPLOAD_URL=$(echo "$RESPONSE" | jq -r '.upload_url')
+
+          if [ -z "$UPLOAD_URL" ] || [ "$UPLOAD_URL" = "null" ]; then
+            echo "Failed to init upload: $RESPONSE"
+            exit 1
+          fi
+
+          # Step 2: Upload
+          curl -sf -X POST "$UPLOAD_URL" \
+            -F "file=@${ZIP_PATH}"
