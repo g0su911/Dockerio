@@ -180,11 +180,11 @@ while true; do
         /opt/factorio/scripts/timelapse-render.sh || true
     fi
 
-    # Reset player data on map reset
-    echo '{}' > "${DATA_DIR}/players.json"
-
     echo "[entrypoint] Creating new map and restarting..."
     create_new_map
+
+    # Reset player data only after new map creation
+    echo '{}' > "${CONFIG_DIR}/players.json"
 
     sleep 5
 done

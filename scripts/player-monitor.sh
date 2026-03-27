@@ -5,7 +5,7 @@ RCON_PORT="${FACTORIO_RCON_PORT:-27015}"
 RCON_PASSWORD="${FACTORIO_RCON_PASSWORD:-changeme}"
 DATA_DIR="/factorio"
 CONSOLE_LOG="${DATA_DIR}/console.log"
-PLAYERS_FILE="${DATA_DIR}/players.json"
+PLAYERS_FILE="${DATA_DIR}/config/players.json"
 
 RCON_CMD="mcrcon -H 127.0.0.1 -P ${RCON_PORT} -p ${RCON_PASSWORD}"
 
