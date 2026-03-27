@@ -7,6 +7,6 @@ services:
     env_file:
       - .env
     environment:
-      - RESET_SCHEDULE=WED:06:00,FRI:19:00,MON:06:00
+      - RESET_SCHEDULE=TUE:21:00,FRI:10:00,SUN:21:00
       - RESET_GAME_HOURS=30
     restart: unless-stopped
