@@ -1,3 +1,4 @@
 .env
 config/server-settings.json
 config/server-adminlist.json
+test-output/
