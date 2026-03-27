@@ -2,68 +2,91 @@
 
 ## 개요
 
-speedrun-sandbox (비업적) 서버에서 자체 제작 Lua 모드 + 서버 스크립트로 구현하는 기능들.
+modded (비업적) 서버에서 자체 제작 Lua 모드 + 서버 스크립트로 구현하는 기능들.
 업적 모드에서 불가능한 기능들을 Lua API로 자유롭게 구현.
 
-## 지금 구현: 타임랩스 모드
+## 완료
 
-### Lua 모드 (`timelapse-mod`)
-- 1시간마다 `game.take_screenshot()` 호출
-- 촬영 위치: 스폰(0,0) 고정
-- 줌: **로그 스케일 줌아웃** — 초반에 빠르게 줌아웃, 후반에 천천히 (공장 확장 속도에 맞춤)
-- 이미지 저장 경로: `script-output/timelapse/`
+### 타임랩스 모드 (`dockerio-timelapse` v0.2.0)
+- TLBE 기반 베이스 트래커 (on_built_entity → 바운딩 박스 자동 확장)
+- 공장 크기 기반 줌 계산 + 부드러운 카메라 전환
+- 2.4초 주기 (25fps, speedGain=60), 1920x1080
+- 모든 surface 자동 촬영 (행성 + 우주 플랫폼)
+- 리셋 시 ffmpeg 렌더링 → GCS 업로드 (mp4만, 스크린샷 삭제)
 
-### 서버 스크립트 (`timelapse-render`)
-- 리셋 시 모인 스크린샷을 ffmpeg로 렌더링
-- 스크린샷 사이 fade in/out 효과
-- 출력: mp4 + gif
-- 렌더링 완료 후 스크린샷 원본 정리
+### 스피드런 타이머 모드 (`dockerio-speedrun-timer` v0.2.0)
+- LiveSplit 스타일 GUI (프로그레스바 + 스플릿 목록 + 타이머)
+- 마일스톤: Green Science → Oil → Blue Science → Silo → Launch → Space Science → 행성들 → SSE
+- 아이콘 표시, 현재 스플릿 하이라이트, PB 비교 (+/- 초록/빨강)
+- 접기/펼치기, 드래그 가능, 위치 저장
+- PB RCON 인터페이스 (load_pb/get_pb)
+- 첫 접속 시 Tips 화면
+- 모드 포털 자동 배포 (GitHub Actions)
+
+---
+
+## 지금 구현: 통계 모드 (`dockerio-stats`)
+
+데이터 수집만 Lua 모드에서, 표시는 웹에서.
+
+### 1. 생산/소비 통계
+- 아이템별 생산량/소비량 (철판, 구리판, 회로, 과학팩 등)
+- 과학팩 분당 생산 속도
+- 로켓 부품 생산량
+- 전력 생산/소비
+
+### 2. 플레이어별 기여도
+- 플레이어별 건설한 건물 수/종류
+- 플레이어별 채굴량
+- 플레이어별 킬/데스 (바이터)
+- 플레이어별 건설 위치 추적 → 웹에서 히트맵 시각화 (플레이어 색상별)
+
+### 3. 서버 전체 통계
+- 바이터 총 킬 수
+- 오염도
+- 연구 진행 속도
+
+### 4. 잡통계 (재미)
+- 컨베이어 벨트 총 길이 (XXkm)
+- 설치한 전봇대 수
+- 깔은 레일 길이
+- 생산한 철판 환산 (에펠탑 XX개)
+- 플레이어 사망 횟수
+- 걸은 거리
+
+### 데이터 저장
+- `game.write_file()` → `script-output/stats/` (JSON)
+- RCON으로 실시간 조회 가능 (remote interface)
+- 리셋 시 웹/GCS로 전송 후 정리
 
 ---
 
 ## 나중에 구현
 
-### 1. 통계 모드 (`stats-mod`)
-- 플레이어별 생산량 추적 (Lua `item_production_statistics`)
-- 플레이어별 건설량, 기여도
-- 플레이어 활동 로그 (Lua event listeners)
-- GUI: 추후 설계
+### PB RCON 플로우
+- 리셋 전 RCON으로 PB 추출 → 파일 저장
+- 서버 시작 시 RCON으로 PB 주입
+- entrypoint.sh에서 자동화
 
-### 2. 스피드런 스플릿 타이머 모드 (`speedrun-timer-mod`)
-- 리얼타임 스플릿 타이머 (LiveSplit 스타일, 게임 내 표시)
-- 마일스톤 자동 감지:
-  - 연구 기반: 주요 연구 완료 시점
-  - 행성 기반: 각 행성 도달/클리어 (Vulcanus, Fulgora, Gleba, Aquilo)
-  - 이벤트 기반: 로켓 발사, 첫 우주 플랫폼, Solar System Edge 도달
-- 클리어 감지: Lua `game.finished` (Space Age)
-- 로켓 발사 감지: 콘솔 로그 파싱
-- 웹 대시보드 연동 (리더보드)
-
-### 3. 고퀄리티 타임랩스 (클라우드 렌더링)
+### 고퀄리티 타임랩스 (클라우드 렌더링)
 - 클라우드 윈도우 VM (GCP/Azure) 온디맨드 방식
-- 리셋 감지 → API로 VM 시작 → OpenClaw로 Factorio GUI 자동 조작
-- 리플레이 로드 → 실제 게임 렌더링으로 스크린샷 촬영 → 타임랩스 생성
-- 렌더링 완료 → VM 자동 종료 (비용 최소화, 월 $5 이하 목표)
-- 현재 서버 스크린샷 방식보다 훨씬 높은 퀄리티
+- OpenClaw로 Factorio GUI 자동 조작 → 리플레이 렌더링
+- 월 $5 이하 목표
 
 ---
 
 ## 서버 구조
 
 ```
-servers/
-└── speedrun-sandbox/
-    ├── config/
-    ├── mods/
-    │   ├── timelapse-mod/       # 지금 구현
-    │   ├── stats-mod/           # 나중에
-    │   └── speedrun-timer-mod/  # 나중에
-    ├── .env
-    └── docker-compose.yml
+mods/
+├── timelapse-mod/          # 완료 (v0.2.0)
+│   ├── control.lua
+│   ├── settings.lua
+│   └── scripts/
+│       ├── tracker.lua
+│       └── camera.lua
+├── speedrun-timer-mod/     # 완료 (v0.2.0)
+│   └── control.lua
+└── stats-mod/              # 지금 구현
+    └── control.lua
 ```
-
-## 의존성
-
-- `SERVER_MODE=sandbox` 분기가 entrypoint.sh에 구현되어야 함
-- ffmpeg 설치 (Docker 이미지에 추가)
-- 웹 대시보드는 별도 프로젝트

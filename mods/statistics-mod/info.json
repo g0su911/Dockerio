@@ -1,0 +1,10 @@
+{
+  "name": "dockerio-statistics",
+  "version": "0.1.0",
+  "title": "Dockerio Statistics",
+  "author": "g0su911",
+  "contact": "https://github.com/g0su911/Dockerio",
+  "homepage": "https://github.com/g0su911/Dockerio",
+  "factorio_version": "2.0",
+  "description": "Server statistics collector for web dashboard. Tracks production, player contributions, kills, and fun stats."
+}

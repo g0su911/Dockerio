@@ -95,7 +95,8 @@ if [ "${SERVER_MODE:-achieve}" = "modded" ]; then
     { "name": "quality", "enabled": true },
     { "name": "space-age", "enabled": true },
     { "name": "dockerio-timelapse", "enabled": true },
-    { "name": "dockerio-speedrun-timer", "enabled": true }
+    { "name": "dockerio-speedrun-timer", "enabled": true },
+    { "name": "dockerio-statistics", "enabled": true }
   ]
 }
 MODLIST
