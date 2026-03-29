@@ -43,7 +43,7 @@ if [ ! -f "${SERVER_SETTINGS}" ]; then
   "allow_commands": "admins-only",
   "autosave_interval": 10,
   "autosave_slots": 3,
-  "afk_autokick_interval": ${FACTORIO_AFK_KICK:-30},
+  "afk_autokick_interval": ${FACTORIO_AFK_KICK:-10},
   "auto_pause": true,
   "auto_pause_when_players_connect": false,
   "only_admins_can_pause_the_game": true,
