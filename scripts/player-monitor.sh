@@ -48,7 +48,7 @@ tail -n 0 -f "${CONSOLE_LOG}" 2>/dev/null | while read -r line; do
             mins=$(( total_mins % 60 ))
             game_time=$(get_game_hours_text)
             rcon "/whisper ${player} [SERVER] ${player}님, 다시 오셨군요! 누적 플레이타임: ${hours}h ${mins}m"
-            rcon "/whisper ${player} [SERVER] 다른 플레이어의 건물을 파괴하거나 업그레이드하는 행위는 금지됩니다. 적발 시 밴 처리됩니다."
+            rcon "/whisper ${player} [SERVER] 다른 플레이어의 건물/오브젝트를 업그레이드하거나 철거 시 밴 될 수 있습니다."
         else
             # New player - welcome message
             game_time=$(get_game_hours_text)
@@ -56,7 +56,7 @@ tail -n 0 -f "${CONSOLE_LOG}" 2>/dev/null | while read -r line; do
                 && mv "${PLAYERS_FILE}.tmp" "${PLAYERS_FILE}"
             rcon "/whisper ${player} [SERVER] ${player}님, 환영합니다! 현재 서버 가동시간: ${game_time}"
             rcon "/whisper ${player} [SERVER] /time 으로 서버 진행시간을 확인하세요. 내 플레이타임이 서버 진행시간의 50% 이상이어야 업적 달성이 가능합니다."
-            rcon "/whisper ${player} [SERVER] 다른 플레이어의 건물을 파괴하거나 업그레이드하는 행위는 금지됩니다. 적발 시 밴 처리됩니다."
+            rcon "/whisper ${player} [SERVER] 다른 플레이어의 건물/오브젝트를 업그레이드하거나 철거 시 밴 될 수 있습니다."
         fi
     fi
 
