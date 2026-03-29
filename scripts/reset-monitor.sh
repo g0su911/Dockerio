@@ -15,13 +15,12 @@ rcon() {
     ${RCON_CMD} "$1" 2>/dev/null || true
 }
 
-# /time returns "Map has been running for 123456 ticks (34 minutes)"
-# 60 ticks/sec * 3600 sec/hr = 216000 ticks/hr
+# /time returns "31 hours, 38 minutes and 16 seconds"
 get_game_hours() {
-    local output ticks
+    local output hours
     output=$(rcon "/time")
-    ticks=$(echo "${output}" | grep -oP '\d+ ticks' | grep -oP '\d+' || echo "0")
-    echo $(( ticks / 216000 ))
+    hours=$(echo "${output}" | grep -oP '\d+ hour' | grep -oP '\d+' || echo "0")
+    echo "${hours}"
 }
 
 # RESET_SCHEDULE format: "WED:06:00,FRI:19:00,MON:06:00"
