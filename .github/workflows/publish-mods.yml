@@ -17,6 +17,8 @@ jobs:
             path: mods/timelapse-mod
           - name: dockerio-speedrun-timer
             path: mods/speedrun-timer-mod
+          - name: dockerio-statistics
+            path: mods/statistics-mod
     steps:
       - name: Checkout
         uses: actions/checkout@v4
