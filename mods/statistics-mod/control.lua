@@ -4,16 +4,21 @@
 -- Writes JSON lines to script-output/stats/
 
 local POLL_INTERVAL = 3600 -- 1 minute in ticks (60 * 60)
-local SCAN_INTERVAL = 3600 -- same 1 minute for entity scan
 
--- Entity types for fun stats
-local BELT_TYPES = {
-    "transport-belt", "fast-transport-belt", "express-transport-belt",
-    "turbo-transport-belt",
-}
-local RAIL_TYPES = { "straight-rail", "curved-rail-a", "curved-rail-b", "half-diagonal-rail", "legacy-straight-rail", "legacy-curved-rail" }
-local POLE_TYPES = { "small-electric-pole", "medium-electric-pole", "big-electric-pole", "substation" }
-local PIPE_TYPES = { "pipe", "pipe-to-ground" }
+-- Entity category lookup for event-based counting (replaces periodic scan)
+local ENTITY_CATEGORY = {}
+for _, name in ipairs({
+    "transport-belt", "fast-transport-belt", "express-transport-belt", "turbo-transport-belt",
+}) do ENTITY_CATEGORY[name] = "belt_count" end
+for _, name in ipairs({
+    "straight-rail", "curved-rail-a", "curved-rail-b", "half-diagonal-rail", "legacy-straight-rail", "legacy-curved-rail",
+}) do ENTITY_CATEGORY[name] = "rail_count" end
+for _, name in ipairs({
+    "small-electric-pole", "medium-electric-pole", "big-electric-pole", "substation",
+}) do ENTITY_CATEGORY[name] = "pole_count" end
+for _, name in ipairs({
+    "pipe", "pipe-to-ground",
+}) do ENTITY_CATEGORY[name] = "pipe_count" end
 
 ---------------------------------------------------------------------------
 -- JSON helpers
@@ -77,37 +82,40 @@ local function collect_kill_stats(force)
 end
 
 ---------------------------------------------------------------------------
--- Entity scan for fun stats
+-- Fun stats: event-driven counts (no per-minute scan)
 ---------------------------------------------------------------------------
 
-local function count_entities(surface, types)
-    local total = 0
-    for _, t in ipairs(types) do
-        total = total + surface.count_entities_filtered{ name = t }
-    end
-    return total
+local function collect_fun_stats()
+    local c = storage.entity_counts
+    local belt_count = c.belt_count
+    local rail_count = c.rail_count
+    return {
+        belt_count = belt_count,
+        rail_count = rail_count,
+        pole_count = c.pole_count,
+        pipe_count = c.pipe_count,
+        belt_km = math.floor(belt_count * 2 / 1000 * 100) / 100,
+        rail_km  = math.floor(rail_count * 2 / 1000 * 100) / 100,
+    }
 end
 
-local function collect_fun_stats()
-    local stats = {
-        belt_count = 0,
-        rail_count = 0,
-        pole_count = 0,
-        pipe_count = 0,
-    }
-
-    for _, surface in pairs(game.surfaces) do
-        stats.belt_count = stats.belt_count + count_entities(surface, BELT_TYPES)
-        stats.rail_count = stats.rail_count + count_entities(surface, RAIL_TYPES)
-        stats.pole_count = stats.pole_count + count_entities(surface, POLE_TYPES)
-        stats.pipe_count = stats.pipe_count + count_entities(surface, PIPE_TYPES)
+local function on_entity_built(event)
+    local entity = event.entity or event.created_entity
+    if not entity or not entity.valid then return end
+    local cat = ENTITY_CATEGORY[entity.name]
+    if cat then
+        storage.entity_counts[cat] = storage.entity_counts[cat] + 1
     end
+end
 
-    -- Belt length in km (1 belt = 1 tile = 2m in Factorio scale)
-    stats.belt_km = math.floor(stats.belt_count * 2 / 1000 * 100) / 100
-    stats.rail_km = math.floor(stats.rail_count * 2 / 1000 * 100) / 100
-
-    return stats
+local function on_entity_removed(event)
+    local entity = event.entity
+    if not entity or not entity.valid then return end
+    local cat = ENTITY_CATEGORY[entity.name]
+    if cat then
+        local v = storage.entity_counts[cat] - 1
+        storage.entity_counts[cat] = v > 0 and v or 0
+    end
 end
 
 ---------------------------------------------------------------------------
@@ -278,6 +286,20 @@ script.on_nth_tick(300, function()
 end)
 
 ---------------------------------------------------------------------------
+-- Entity count events
+---------------------------------------------------------------------------
+
+script.on_event(defines.events.on_built_entity,        on_entity_built)
+script.on_event(defines.events.on_robot_built_entity,  on_entity_built)
+script.on_event(defines.events.script_raised_built,    on_entity_built)
+script.on_event(defines.events.script_raised_revive,   on_entity_built)
+
+script.on_event(defines.events.on_player_mined_entity, on_entity_removed)
+script.on_event(defines.events.on_robot_mined_entity,  on_entity_removed)
+script.on_event(defines.events.on_entity_died,         on_entity_removed)
+script.on_event(defines.events.script_raised_destroy,  on_entity_removed)
+
+---------------------------------------------------------------------------
 -- Periodic polling
 ---------------------------------------------------------------------------
 
@@ -331,12 +353,27 @@ remote.add_interface("statistics", {
 -- Init
 ---------------------------------------------------------------------------
 
+local function init_entity_counts()
+    if not storage.entity_counts then
+        -- One-time scan to seed counts from existing save
+        local counts = { belt_count = 0, rail_count = 0, pole_count = 0, pipe_count = 0 }
+        for _, surface in pairs(game.surfaces) do
+            for name, cat in pairs(ENTITY_CATEGORY) do
+                counts[cat] = counts[cat] + surface.count_entities_filtered{ name = name }
+            end
+        end
+        storage.entity_counts = counts
+    end
+end
+
 script.on_init(function()
     storage.player_stats = {}
+    storage.entity_counts = { belt_count = 0, rail_count = 0, pole_count = 0, pipe_count = 0 }
 end)
 
 script.on_configuration_changed(function()
     if not storage.player_stats then
         storage.player_stats = {}
     end
+    init_entity_counts()
 end)
